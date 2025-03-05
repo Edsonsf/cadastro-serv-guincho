@@ -14,6 +14,9 @@ import {
 } from '@mui/material';
 import { Servico } from '../types/Servico';
 import { Veiculo } from '../types/Veiculo';
+import { ChecklistServico } from '../types/ChecklistServico';
+import ChecklistServicoComponent from './ChecklistServico';
+import axios from 'axios';
 
 interface ServicoFormProps {
   servico?: Servico;
@@ -37,14 +40,69 @@ const ServicoForm: React.FC<ServicoFormProps> = ({
     valor: 0,
     status: 'pendente',
     observacoes: '',
-    fotos: [],
+  });
+
+  const [checklistData, setChecklistData] = useState<ChecklistServico>({
+    servico_id: 0,
+    motor_estado: 'nao_verificado',
+    motor_obs: '',
+    radiador_estado: 'nao_verificado',
+    radiador_obs: '',
+    freios_estado: 'nao_verificado',
+    freios_obs: '',
+    suspensao_estado: 'nao_verificado',
+    suspensao_obs: '',
+    pneus_estado: 'nao_verificado',
+    pneus_obs: '',
+    bateria_estado: 'nao_verificado',
+    bateria_obs: '',
+    oleo_estado: 'nao_verificado',
+    oleo_obs: '',
+    filtro_ar_estado: 'nao_verificado',
+    filtro_ar_obs: '',
+    filtro_oleo_estado: 'nao_verificado',
+    filtro_oleo_obs: '',
+    filtro_combustivel_estado: 'nao_verificado',
+    filtro_combustivel_obs: '',
+    correia_dentada_estado: 'nao_verificado',
+    correia_dentada_obs: '',
+    velas_estado: 'nao_verificado',
+    velas_obs: '',
+    cabos_velas_estado: 'nao_verificado',
+    cabos_velas_obs: '',
+    escapamento_estado: 'nao_verificado',
+    escapamento_obs: '',
+    embreagem_estado: 'nao_verificado',
+    embreagem_obs: '',
+    caixa_cambio_estado: 'nao_verificado',
+    caixa_cambio_obs: '',
+    direcao_hidraulica_estado: 'nao_verificado',
+    direcao_hidraulica_obs: '',
+    ar_condicionado_estado: 'nao_verificado',
+    ar_condicionado_obs: '',
+    observacoes_gerais: '',
   });
 
   useEffect(() => {
     if (servico) {
       setFormData(servico);
+      // Carregar checklist se existir
+      fetchChecklist(servico.id);
     }
   }, [servico]);
+
+  const fetchChecklist = async (servicoId: number | undefined) => {
+    if (servicoId) {
+      try {
+        const response = await axios.get(`http://localhost:5000/api/checklist/${servicoId}`);
+        if (response.data) {
+          setChecklistData(response.data);
+        }
+      } catch (error) {
+        console.error('Erro ao carregar checklist:', error);
+      }
+    }
+  };
 
   const handleTextChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -62,9 +120,36 @@ const ServicoForm: React.FC<ServicoFormProps> = ({
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleChecklistChange = (newChecklist: ChecklistServico) => {
+    setChecklistData(newChecklist);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit(formData);
+    try {
+      // Primeiro salva o serviço
+      const servicoResponse = await axios.post('http://localhost:5000/api/servicos', formData);
+      const novoServicoId = servicoResponse.data.id;
+
+      // Depois salva o checklist
+      const checklistToSave = {
+        ...checklistData,
+        servico_id: novoServicoId,
+      };
+
+      try {
+        await axios.post('http://localhost:5000/api/checklist', checklistToSave);
+        onSubmit(servicoResponse.data);
+      } catch (checklistError) {
+        console.error('Erro ao salvar checklist:', checklistError);
+        // Se falhar ao salvar o checklist, exclui o serviço para manter consistência
+        await axios.delete(`http://localhost:5000/api/servicos/${novoServicoId}`);
+        throw checklistError;
+      }
+    } catch (error) {
+      console.error('Erro ao salvar serviço e checklist:', error);
+      alert('Erro ao salvar o serviço. Por favor, tente novamente.');
+    }
   };
 
   return (
@@ -162,6 +247,12 @@ const ServicoForm: React.FC<ServicoFormProps> = ({
             rows={3}
             margin="normal"
           />
+          
+          <ChecklistServicoComponent
+            checklist={checklistData}
+            onChange={handleChecklistChange}
+          />
+
           <Box sx={{ mt: 2, display: 'flex', gap: 2 }}>
             <Button
               type="submit"

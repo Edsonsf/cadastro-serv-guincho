@@ -51,6 +51,7 @@ const ClienteList: React.FC<ClienteListProps> = ({
           <TableHead>
             <TableRow>
               <TableCell>Nome</TableCell>
+              <TableCell>CPF</TableCell>
               <TableCell>Telefone</TableCell>
               <TableCell>Email</TableCell>
               <TableCell>Endereço</TableCell>
@@ -61,6 +62,7 @@ const ClienteList: React.FC<ClienteListProps> = ({
             {filteredClientes.map((cliente) => (
               <TableRow key={cliente.id}>
                 <TableCell>{cliente.nome}</TableCell>
+                <TableCell>{cliente.cpf}</TableCell>
                 <TableCell>{cliente.telefone}</TableCell>
                 <TableCell>{cliente.email}</TableCell>
                 <TableCell>{cliente.endereco}</TableCell>

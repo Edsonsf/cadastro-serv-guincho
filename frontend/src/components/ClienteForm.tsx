@@ -22,6 +22,7 @@ const ClienteForm: React.FC<ClienteFormProps> = ({
 }) => {
   const [formData, setFormData] = useState<Cliente>({
     nome: '',
+    cpf: '',
     telefone: '',
     endereco: '',
     email: '',
@@ -61,6 +62,19 @@ const ClienteForm: React.FC<ClienteFormProps> = ({
             onChange={handleChange}
             required
             margin="normal"
+          />
+          <TextField
+            fullWidth
+            label="CPF"
+            name="cpf"
+            value={formData.cpf}
+            onChange={handleChange}
+            required
+            margin="normal"
+            inputProps={{
+              maxLength: 14,
+              pattern: "\\d{3}\\.\\d{3}\\.\\d{3}-\\d{2}"
+            }}
           />
           <TextField
             fullWidth
