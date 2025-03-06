@@ -39,5 +39,19 @@ export interface ChecklistServico {
   direcao_hidraulica_obs?: string;
   ar_condicionado_estado: EstadoPeca;
   ar_condicionado_obs?: string;
+  paralama_estado: EstadoPeca;
+  paralama_obs?: string;
+  capo_estado: EstadoPeca;
+  capo_obs?: string;
+  teto_estado: EstadoPeca;
+  teto_obs?: string;
+  macaco_estado: EstadoPeca;
+  macaco_obs?: string;
+  triangulo_estado: EstadoPeca;
+  triangulo_obs?: string;
+  extintor_estado: EstadoPeca;
+  extintor_obs?: string;
+  acessorios_internos_estado: EstadoPeca;
+  acessorios_internos_obs?: string;
   observacoes_gerais?: string;
 } 

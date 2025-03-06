@@ -17,6 +17,8 @@ import { Veiculo } from '../types/Veiculo';
 import { ChecklistServico } from '../types/ChecklistServico';
 import ChecklistServicoComponent from './ChecklistServico';
 import axios from 'axios';
+import { jsPDF } from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 interface ServicoFormProps {
   servico?: Servico;
@@ -80,6 +82,20 @@ const ServicoForm: React.FC<ServicoFormProps> = ({
     direcao_hidraulica_obs: '',
     ar_condicionado_estado: 'nao_verificado',
     ar_condicionado_obs: '',
+    paralama_estado: 'nao_verificado',
+    paralama_obs: '',
+    capo_estado: 'nao_verificado',
+    capo_obs: '',
+    teto_estado: 'nao_verificado',
+    teto_obs: '',
+    macaco_estado: 'nao_verificado',
+    macaco_obs: '',
+    triangulo_estado: 'nao_verificado',
+    triangulo_obs: '',
+    extintor_estado: 'nao_verificado',
+    extintor_obs: '',
+    acessorios_internos_estado: 'nao_verificado',
+    acessorios_internos_obs: '',
     observacoes_gerais: '',
   });
 
@@ -140,6 +156,8 @@ const ServicoForm: React.FC<ServicoFormProps> = ({
       try {
         await axios.post('http://localhost:5000/api/checklist', checklistToSave);
         onSubmit(servicoResponse.data);
+        // Após salvar com sucesso, gera o relatório
+        handleGerarRelatorio(novoServicoId);
       } catch (checklistError) {
         console.error('Erro ao salvar checklist:', checklistError);
         // Se falhar ao salvar o checklist, exclui o serviço para manter consistência
@@ -149,6 +167,112 @@ const ServicoForm: React.FC<ServicoFormProps> = ({
     } catch (error) {
       console.error('Erro ao salvar serviço e checklist:', error);
       alert('Erro ao salvar o serviço. Por favor, tente novamente.');
+    }
+  };
+
+  const handleGerarRelatorio = async (servicoId: number) => {
+    try {
+      const response = await axios.get(`http://localhost:5000/api/servicos/${servicoId}/relatorio`);
+      const data = response.data;
+
+      const doc = new jsPDF();
+      
+      // Cabeçalho
+      doc.setFontSize(20);
+      doc.text('Relatório de Serviço', 105, 15, { align: 'center' });
+      
+      // Informações do Cliente
+      doc.setFontSize(16);
+      doc.text('Dados do Cliente', 14, 30);
+      doc.setFontSize(12);
+      doc.text(`Nome: ${data.cliente_nome}`, 14, 40);
+      doc.text(`CPF: ${data.cliente_cpf}`, 14, 45);
+      doc.text(`Telefone: ${data.cliente_telefone}`, 14, 50);
+      doc.text(`Email: ${data.cliente_email}`, 14, 55);
+      doc.text(`Endereço: ${data.cliente_endereco}`, 14, 60);
+
+      // Informações do Veículo
+      doc.setFontSize(16);
+      doc.text('Dados do Veículo', 14, 75);
+      doc.setFontSize(12);
+      doc.text(`Placa: ${data.placa}`, 14, 85);
+      doc.text(`Marca/Modelo: ${data.marca} ${data.modelo}`, 14, 90);
+      doc.text(`Ano: ${data.ano}`, 14, 95);
+      doc.text(`Cor: ${data.cor}`, 14, 100);
+      doc.text(`Chassi: ${data.chassi}`, 14, 105);
+
+      // Informações do Serviço
+      doc.setFontSize(16);
+      doc.text('Dados do Serviço', 14, 120);
+      doc.setFontSize(12);
+      doc.text(`Data: ${new Date(data.data_servico).toLocaleDateString()}`, 14, 130);
+      doc.text(`Tipo: ${data.tipo_servico}`, 14, 135);
+      doc.text(`Origem: ${data.origem}`, 14, 140);
+      doc.text(`Destino: ${data.destino}`, 14, 145);
+      doc.text(`Valor: R$ ${data.valor.toFixed(2)}`, 14, 150);
+      doc.text(`Status: ${data.status}`, 14, 155);
+      doc.text(`Observações: ${data.observacoes || '-'}`, 14, 160);
+
+      // Checklist
+      doc.addPage();
+      doc.setFontSize(16);
+      doc.text('Checklist do Veículo', 105, 15, { align: 'center' });
+      
+      const checklistItems = [
+        { item: 'Motor', estado: data.motor_estado, obs: data.motor_obs },
+        { item: 'Radiador', estado: data.radiador_estado, obs: data.radiador_obs },
+        { item: 'Freios', estado: data.freios_estado, obs: data.freios_obs },
+        { item: 'Suspensão', estado: data.suspensao_estado, obs: data.suspensao_obs },
+        { item: 'Pneus', estado: data.pneus_estado, obs: data.pneus_obs },
+        { item: 'Bateria', estado: data.bateria_estado, obs: data.bateria_obs },
+        { item: 'Óleo', estado: data.oleo_estado, obs: data.oleo_obs },
+        { item: 'Filtro de Ar', estado: data.filtro_ar_estado, obs: data.filtro_ar_obs },
+        { item: 'Filtro de Óleo', estado: data.filtro_oleo_estado, obs: data.filtro_oleo_obs },
+        { item: 'Filtro de Combustível', estado: data.filtro_combustivel_estado, obs: data.filtro_combustivel_obs },
+        { item: 'Correia Dentada', estado: data.correia_dentada_estado, obs: data.correia_dentada_obs },
+        { item: 'Velas', estado: data.velas_estado, obs: data.velas_obs },
+        { item: 'Cabos de Vela', estado: data.cabos_velas_estado, obs: data.cabos_velas_obs },
+        { item: 'Escapamento', estado: data.escapamento_estado, obs: data.escapamento_obs },
+        { item: 'Embreagem', estado: data.embreagem_estado, obs: data.embreagem_obs },
+        { item: 'Caixa de Câmbio', estado: data.caixa_cambio_estado, obs: data.caixa_cambio_obs },
+        { item: 'Direção Hidráulica', estado: data.direcao_hidraulica_estado, obs: data.direcao_hidraulica_obs },
+        { item: 'Ar Condicionado', estado: data.ar_condicionado_estado, obs: data.ar_condicionado_obs },
+        { item: 'Paralama', estado: data.paralama_estado, obs: data.paralama_obs },
+        { item: 'Capô', estado: data.capo_estado, obs: data.capo_obs },
+        { item: 'Teto', estado: data.teto_estado, obs: data.teto_obs },
+        { item: 'Macaco', estado: data.macaco_estado, obs: data.macaco_obs },
+        { item: 'Triângulo', estado: data.triangulo_estado, obs: data.triangulo_obs },
+        { item: 'Extintor', estado: data.extintor_estado, obs: data.extintor_obs },
+        { item: 'Acessórios Internos', estado: data.acessorios_internos_estado, obs: data.acessorios_internos_obs },
+      ];
+
+      autoTable(doc, {
+        startY: 25,
+        head: [['Item', 'Estado', 'Observações']],
+        body: checklistItems.map(item => [
+          item.item,
+          item.estado === 'ok' ? 'OK' : item.estado === 'avariado' ? 'Avariado' : 'Não Verificado',
+          item.obs || '-'
+        ]),
+        theme: 'grid',
+        headStyles: { fillColor: [66, 66, 66] },
+        styles: { fontSize: 10 },
+      });
+
+      // Observações Gerais do Checklist
+      if (data.observacoes_gerais) {
+        doc.addPage();
+        doc.setFontSize(16);
+        doc.text('Observações Gerais do Checklist', 14, 20);
+        doc.setFontSize(12);
+        doc.text(data.observacoes_gerais, 14, 30);
+      }
+
+      // Salva o PDF
+      doc.save(`relatorio-servico-${servicoId}.pdf`);
+    } catch (error) {
+      console.error('Erro ao gerar relatório:', error);
+      alert('Erro ao gerar o relatório. Por favor, tente novamente.');
     }
   };
 
@@ -253,7 +377,8 @@ const ServicoForm: React.FC<ServicoFormProps> = ({
             onChange={handleChecklistChange}
           />
 
-          <Box sx={{ mt: 2, display: 'flex', gap: 2 }}>
+          <Box sx={{ mt: 2, display: 'flex', gap: 2, flexDirection: 'column' }}>
+            <Box sx={{ display: 'flex', gap: 2 }}>
             <Button
               type="submit"
               variant="contained"
@@ -270,6 +395,17 @@ const ServicoForm: React.FC<ServicoFormProps> = ({
             >
               Cancelar
             </Button>
+            </Box>
+            {servico && (
+              <Button
+                variant="contained"
+                color="info"
+                fullWidth
+                onClick={() => handleGerarRelatorio(servico.id!)}
+              >
+                Gerar Relatório
+              </Button>
+            )}
           </Box>
         </Box>
       </Paper>

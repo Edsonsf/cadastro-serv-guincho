@@ -442,6 +442,31 @@ app.put('/api/checklist/:servico_id', (req, res) => {
   });
 });
 
+// Rota para gerar relatório completo do serviço
+app.get('/api/servicos/:id/relatorio', (req, res) => {
+  const query = `
+    SELECT 
+      s.*,
+      v.placa, v.marca, v.modelo, v.ano, v.cor, v.chassi,
+      c.nome as cliente_nome, c.cpf as cliente_cpf, c.telefone as cliente_telefone,
+      c.endereco as cliente_endereco, c.email as cliente_email,
+      cs.*
+    FROM servicos s
+    JOIN veiculos v ON s.veiculo_id = v.id
+    JOIN clientes c ON v.cliente_id = c.id
+    LEFT JOIN checklist_servico cs ON s.id = cs.servico_id
+    WHERE s.id = ?
+  `;
+
+  connection.query(query, [req.params.id], (err, results) => {
+    if (err) {
+      res.status(500).json({ error: err.message });
+      return;
+    }
+    res.json(results[0]);
+  });
+});
+
 app.listen(port, () => {
   console.log(`Servidor rodando na porta ${port}`);
 }); 

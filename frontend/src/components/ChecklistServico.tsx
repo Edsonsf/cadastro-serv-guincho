@@ -221,6 +221,55 @@ const ChecklistServicoComponent: React.FC<ChecklistServicoProps> = ({
             onEstadoChange={handleEstadoChange('ar_condicionado_estado')}
             onObservacaoChange={handleObservacaoChange('ar_condicionado_obs')}
           />
+          <ItemChecklist
+            label="Paralama"
+            estado={checklist.paralama_estado}
+            observacao={checklist.paralama_obs}
+            onEstadoChange={handleEstadoChange('paralama_estado')}
+            onObservacaoChange={handleObservacaoChange('paralama_obs')}
+          />
+          <ItemChecklist
+            label="Capô"
+            estado={checklist.capo_estado}
+            observacao={checklist.capo_obs}
+            onEstadoChange={handleEstadoChange('capo_estado')}
+            onObservacaoChange={handleObservacaoChange('capo_obs')}
+          />
+          <ItemChecklist
+            label="Teto"
+            estado={checklist.teto_estado}
+            observacao={checklist.teto_obs}
+            onEstadoChange={handleEstadoChange('teto_estado')}
+            onObservacaoChange={handleObservacaoChange('teto_obs')}
+          />
+          <ItemChecklist
+            label="Macaco"
+            estado={checklist.macaco_estado}
+            observacao={checklist.macaco_obs}
+            onEstadoChange={handleEstadoChange('macaco_estado')}
+            onObservacaoChange={handleObservacaoChange('macaco_obs')}
+          />
+          <ItemChecklist
+            label="Triângulo"
+            estado={checklist.triangulo_estado}
+            observacao={checklist.triangulo_obs}
+            onEstadoChange={handleEstadoChange('triangulo_estado')}
+            onObservacaoChange={handleObservacaoChange('triangulo_obs')}
+          />
+          <ItemChecklist
+            label="Extintor"
+            estado={checklist.extintor_estado}
+            observacao={checklist.extintor_obs}
+            onEstadoChange={handleEstadoChange('extintor_estado')}
+            onObservacaoChange={handleObservacaoChange('extintor_obs')}
+          />
+          <ItemChecklist
+            label="Acessórios Internos"
+            estado={checklist.acessorios_internos_estado}
+            observacao={checklist.acessorios_internos_obs}
+            onEstadoChange={handleEstadoChange('acessorios_internos_estado')}
+            onObservacaoChange={handleObservacaoChange('acessorios_internos_obs')}
+          />
         </Grid>
       </Grid>
       <TextField
